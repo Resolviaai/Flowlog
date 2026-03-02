@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { hapticFeedback } from "../utils/haptics";
 import { toast } from "sonner";
 import { supabase } from "../lib/supabase";
-import { profileService } from "../services/api";
+import { profileService, workspaceService } from "../services/api";
 import { Profile } from "../types";
 
 export function Settings() {
@@ -348,9 +348,16 @@ export function Settings() {
                     variant="danger" 
                     className="w-full" 
                     disabled={deleteConfirm !== "DELETE"}
-                    onClick={() => {
-                      // Implement real workspace deletion if needed
-                      toast.error("Workspace deletion not implemented yet");
+                    onClick={async () => {
+                      try {
+                        await workspaceService.deleteWorkspace(currentWorkspace.id);
+                        toast.success("Workspace deleted successfully");
+                        // Force reload to reset state and redirect to onboarding/home
+                        window.location.href = "/";
+                      } catch (error: any) {
+                        console.error("Failed to delete workspace:", error);
+                        toast.error(error.message || "Failed to delete workspace");
+                      }
                     }}
                   >
                     <Trash2 className="w-4 h-4 mr-2" />

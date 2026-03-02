@@ -27,6 +27,10 @@ export function EditVideo() {
   const [duration, setDuration] = useState("");
   const [editedBeforePayment, setEditedBeforePayment] = useState(false);
   const [internalNotes, setInternalNotes] = useState("");
+  const [customPrice, setCustomPrice] = useState("");
+  const [priceChangeReason, setPriceChangeReason] = useState("");
+  const [bonusAmount, setBonusAmount] = useState("");
+  const [bonusReason, setBonusReason] = useState("");
   const [status, setStatus] = useState<Video["status"]>("not_started");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -42,6 +46,10 @@ export function EditVideo() {
       setDuration(video.duration_minutes.toString());
       setEditedBeforePayment(video.edited_before_payment);
       setInternalNotes(video.internal_notes || "");
+      setCustomPrice(video.custom_price?.toString() || "");
+      setPriceChangeReason(video.price_change_reason || "");
+      setBonusAmount(video.bonus_amount?.toString() || "");
+      setBonusReason(video.bonus_reason || "");
       setStatus(video.status);
     }
   }, [video]);
@@ -56,7 +64,15 @@ export function EditVideo() {
     
     setIsSubmitting(true);
     try {
-      const updatedVideo = await videoService.updateVideo(video.id, {
+      let updatedVideo = video;
+      
+      // If status changed, use changeVideoStatus to update timeline fields
+      if (status !== video.status) {
+        updatedVideo = await videoService.changeVideoStatus(video.id, status, "Status updated from Edit Video");
+      }
+
+      // Update other fields
+      updatedVideo = await videoService.updateVideo(video.id, {
         title,
         description,
         drive_link: driveLink,
@@ -67,8 +83,12 @@ export function EditVideo() {
         platform,
         duration_minutes: parseFloat(duration) || 0,
         internal_notes: internalNotes,
-        status
+        custom_price: customPrice ? parseFloat(customPrice) : null,
+        price_change_reason: priceChangeReason || null,
+        bonus_amount: bonusAmount ? parseFloat(bonusAmount) : null,
+        bonus_reason: bonusReason || null,
       });
+
       updateVideoInState(updatedVideo);
       hapticFeedback('success');
       toast.success("Video updated successfully");
@@ -227,6 +247,60 @@ export function EditVideo() {
                 <label htmlFor="editedBeforePayment" className="text-sm text-white">
                   Edited before payment
                 </label>
+              </div>
+
+              <div className="pt-4 border-t border-border">
+                <h3 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Pricing Overrides</h3>
+                
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-text-secondary mb-1">Custom Price (Optional)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={customPrice}
+                        onChange={(e) => setCustomPrice(e.target.value)}
+                        placeholder="Default rate"
+                        className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-text-secondary mb-1">Reason for Custom Price</label>
+                      <input
+                        type="text"
+                        value={priceChangeReason}
+                        onChange={(e) => setPriceChangeReason(e.target.value)}
+                        placeholder="e.g. Complex edits"
+                        className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-text-secondary mb-1">Bonus Amount (Optional)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={bonusAmount}
+                        onChange={(e) => setBonusAmount(e.target.value)}
+                        placeholder="e.g. 50"
+                        className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-text-secondary mb-1">Reason for Bonus</label>
+                      <input
+                        type="text"
+                        value={bonusReason}
+                        onChange={(e) => setBonusReason(e.target.value)}
+                        placeholder="e.g. Extra revisions"
+                        className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div>

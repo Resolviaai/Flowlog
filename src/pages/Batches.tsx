@@ -1,6 +1,5 @@
 import React from "react";
 import { useAppContext } from "../context/AppContext";
-import { TopBar } from "../components/layout/TopBar";
 import { Card, CardContent } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
 import { formatCurrency, formatDate } from "../utils/helpers";
@@ -21,37 +20,35 @@ export function Batches() {
   const consumed = totalPaid - netBalance;
 
   return (
-    <div className="flex flex-col min-h-screen pb-24">
-      <TopBar 
-        title="Batches" 
-        rightAction={
-          <button 
-            onClick={() => {
-              refreshData();
-              hapticFeedback('light');
-              toast.success("Refreshing data...");
-            }} 
-            className="p-2 text-text-secondary hover:text-white transition-colors bg-surface/50 rounded-full"
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
-        }
-      />
+    <div className="flex flex-col min-h-screen pb-24 px-4 pt-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-white tracking-tight">Batches</h1>
+        <button 
+          onClick={() => {
+            refreshData();
+            hapticFeedback('light');
+            toast.success("Refreshing data...");
+          }} 
+          className="p-2 text-text-secondary hover:text-white transition-colors bg-surface/50 rounded-full"
+        >
+          <RefreshCw className="w-5 h-5" />
+        </button>
+      </div>
       
-      <div className="p-4 space-y-4">
+      <div className="space-y-6">
         {/* Summary */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="bg-surface rounded-xl p-3 text-center border border-border">
-            <p className="text-xs text-text-secondary uppercase tracking-wider mb-1">Total Paid</p>
-            <p className="font-semibold text-white">{formatCurrency(totalPaid, currentWorkspace.currency_symbol)}</p>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-surface rounded-2xl p-4 flex flex-col justify-between h-24 border border-border">
+            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Total Paid</p>
+            <p className="text-lg font-bold text-white tracking-tight">{formatCurrency(totalPaid, currentWorkspace.currency_symbol)}</p>
           </div>
-          <div className="bg-surface rounded-xl p-3 text-center border border-border">
-            <p className="text-xs text-text-secondary uppercase tracking-wider mb-1">Consumed</p>
-            <p className="font-semibold text-white">{formatCurrency(consumed, currentWorkspace.currency_symbol)}</p>
+          <div className="bg-surface rounded-2xl p-4 flex flex-col justify-between h-24 border border-border">
+            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Consumed</p>
+            <p className="text-lg font-bold text-white tracking-tight">{formatCurrency(consumed, currentWorkspace.currency_symbol)}</p>
           </div>
-          <div className="bg-surface rounded-xl p-3 text-center border border-border">
-            <p className="text-xs text-text-secondary uppercase tracking-wider mb-1">Net Balance</p>
-            <p className="font-semibold text-accent">{formatCurrency(netBalance, currentWorkspace.currency_symbol)}</p>
+          <div className="bg-surface rounded-2xl p-4 flex flex-col justify-between h-24 border border-border">
+            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Net Balance</p>
+            <p className="text-lg font-bold text-accent tracking-tight">{formatCurrency(netBalance, currentWorkspace.currency_symbol)}</p>
           </div>
         </div>
 

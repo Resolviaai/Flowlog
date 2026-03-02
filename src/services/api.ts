@@ -59,6 +59,10 @@ export const workspaceService = {
     if (error) throw error;
     return data as Workspace;
   },
+  deleteWorkspace: async (id: string) => {
+    const { error } = await supabase.from('workspaces').delete().eq('id', id);
+    if (error) throw error;
+  },
   inviteMember: async (invite: Omit<WorkspaceInvite, "id" | "created_at" | "token" | "expires_at" | "status">) => {
     const { data, error } = await supabase
       .from('workspace_invites')

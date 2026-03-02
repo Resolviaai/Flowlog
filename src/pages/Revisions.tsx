@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
-import { TopBar } from "../components/layout/TopBar";
 import { Card, CardContent } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
 import { getRelativeTime } from "../utils/helpers";
@@ -26,26 +25,28 @@ export function Revisions() {
   if (filter === "Has Open Revisions") displayVideos = openRevisionsVideos;
 
   return (
-    <div className="flex flex-col min-h-screen pb-24">
-      <TopBar title="Revisions" />
+    <div className="flex flex-col min-h-screen pb-24 px-4 pt-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-white tracking-tight">Revisions</h1>
+      </div>
       
-      <div className="p-4 space-y-4">
+      <div className="space-y-6">
         {/* Summary */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="bg-surface rounded-xl p-3 text-center border border-border">
-            <p className="text-xs text-text-secondary uppercase tracking-wider mb-1">Total</p>
-            <p className="font-semibold text-white">{totalRevisions}</p>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-surface rounded-2xl p-4 flex flex-col justify-between h-24 border border-border">
+            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Total</p>
+            <p className="text-lg font-bold text-white tracking-tight">{totalRevisions}</p>
           </div>
-          <div className="bg-surface rounded-xl p-3 text-center border border-border">
-            <p className="text-xs text-text-secondary uppercase tracking-wider mb-1">Avg/Video</p>
-            <p className="font-semibold text-white">{avgPerVideo.toFixed(1)}</p>
+          <div className="bg-surface rounded-2xl p-4 flex flex-col justify-between h-24 border border-border">
+            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Avg / Video</p>
+            <p className="text-lg font-bold text-white tracking-tight">{avgPerVideo.toFixed(1)}</p>
           </div>
           <div 
-            className="bg-error/10 rounded-xl p-3 text-center border border-error/20 cursor-pointer hover:bg-error/20 transition-colors"
+            className="bg-surface rounded-2xl p-4 flex flex-col justify-between h-24 border border-border cursor-pointer hover:border-error/50 transition-colors"
             onClick={() => setFilter("Flagged (3+)")}
           >
-            <p className="text-xs text-error uppercase tracking-wider mb-1">Flagged (3+)</p>
-            <p className="font-semibold text-error">{flaggedVideos.length}</p>
+            <p className="text-[10px] font-bold text-error uppercase tracking-widest">Flagged (3+)</p>
+            <p className="text-lg font-bold text-error tracking-tight">{flaggedVideos.length}</p>
           </div>
         </div>
 
@@ -55,8 +56,10 @@ export function Revisions() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-                filter === f ? "bg-accent text-white" : "bg-surface text-text-secondary hover:bg-white/5"
+              className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all shrink-0 border ${
+                filter === f 
+                  ? "bg-white text-black border-white" 
+                  : "bg-surface text-text-secondary border-border hover:border-text-secondary hover:text-white"
               }`}
             >
               {f}

@@ -9,15 +9,37 @@ import { formatCurrency, formatDate } from "../utils/helpers";
 import { getBatchBalance } from "../utils/financials";
 import { ArrowLeft, Edit2, Trash2 } from "lucide-react";
 
+import { toast } from "sonner";
+import { batchService } from "../services/api";
+
 export function BatchDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { batches, videos, currentWorkspace, role } = useAppContext();
+  const { batches, videos, currentWorkspace, role, refreshData, removeBatchFromState } = useAppContext();
 
   const batch = batches.find(b => b.id === id);
   const batchVideos = videos.filter(v => v.batch_id === id);
 
   if (!batch || !currentWorkspace) return <div className="p-4 text-center text-text-secondary">Batch not found</div>;
+
+  const handleDelete = async () => {
+    const confirmMessage = batchVideos.length > 0 
+      ? `This batch has ${batchVideos.length} assigned videos. Deleting it may affect them. Are you sure?`
+      : "Are you sure you want to delete this batch? This action cannot be undone.";
+
+    if (window.confirm(confirmMessage)) {
+      try {
+        await batchService.deleteBatch(batch.id);
+        removeBatchFromState(batch.id);
+        toast.success("Batch deleted successfully");
+        navigate("/batches");
+        refreshData(true); // Refresh in background
+      } catch (error: any) {
+        console.error("Failed to delete batch:", error);
+        toast.error(error.message || "Failed to delete batch. It might have related records.");
+      }
+    }
+  };
 
   const balance = getBatchBalance(batch, videos);
   const consumed = batch.amount_paid - balance;
@@ -117,13 +139,10 @@ export function BatchDetail() {
         {/* Danger Zone */}
         {role === "editor" && (
           <section className="pt-4">
-            <Button variant="danger" className="w-full" disabled={batchVideos.length > 0}>
+            <Button variant="danger" className="w-full" onClick={handleDelete}>
               <Trash2 className="w-4 h-4 mr-2" />
               Delete Batch
             </Button>
-            {batchVideos.length > 0 && (
-              <p className="text-xs text-text-secondary text-center mt-2">Cannot delete batch with assigned videos.</p>
-            )}
           </section>
         )}
       </div>

@@ -25,8 +25,10 @@ type AppContextType = {
   updateSettings: (newSettings: Partial<Settings>) => Promise<void>;
   addVideoToState: (video: Video) => void;
   updateVideoInState: (video: Video) => void;
+  removeVideoFromState: (id: string) => void;
   addBatchToState: (batch: PaymentBatch) => void;
   updateBatchInState: (batch: PaymentBatch) => void;
+  removeBatchFromState: (id: string) => void;
   loadSample: () => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -130,12 +132,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setVideos(prev => prev.map(v => v.id === video.id ? video : v));
   };
 
+  const removeVideoFromState = (id: string) => {
+    setVideos(prev => prev.filter(v => v.id !== id));
+  };
+
   const addBatchToState = (batch: PaymentBatch) => {
     setBatches(prev => [batch, ...prev]);
   };
 
   const updateBatchInState = (batch: PaymentBatch) => {
     setBatches(prev => prev.map(b => b.id === batch.id ? batch : b));
+  };
+
+  const removeBatchFromState = (id: string) => {
+    setBatches(prev => prev.filter(b => b.id !== id));
   };
 
   const loadSample = async () => {
@@ -327,8 +337,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     <AppContext.Provider value={{ 
       user, profile, workspaces, currentWorkspace, setCurrentWorkspace,
       batches, videos, revisions, activityLog, pendingInvites, isLoading, role, setRole, 
-      refreshData, refreshInvites, refreshWorkspaces, updateSettings, addVideoToState, updateVideoInState, 
-      addBatchToState, updateBatchInState, loadSample, signOut
+      refreshData, refreshInvites, refreshWorkspaces, updateSettings, addVideoToState, updateVideoInState, removeVideoFromState,
+      addBatchToState, updateBatchInState, removeBatchFromState, loadSample, signOut
     }}>
       {children}
     </AppContext.Provider>

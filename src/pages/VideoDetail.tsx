@@ -9,16 +9,33 @@ import { formatDate, getRelativeTime } from "../utils/helpers";
 import { ArrowLeft, ExternalLink, Copy, Clock, Edit2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { videoService } from "../services/api";
+
 export function VideoDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { videos, batches, revisions, role } = useAppContext();
+  const { videos, batches, revisions, role, refreshData, removeVideoFromState } = useAppContext();
 
   const video = videos.find(v => v.id === id);
   const batch = batches.find(b => b.id === video?.batch_id);
   const videoRevisions = revisions.filter(r => r.video_id === id).sort((a, b) => b.revision_number - a.revision_number);
 
   if (!video) return <div className="p-4 text-center text-text-secondary">Video not found</div>;
+
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this video? This action cannot be undone.")) {
+      try {
+        await videoService.deleteVideo(video.id);
+        removeVideoFromState(video.id);
+        toast.success("Video deleted successfully");
+        navigate("/videos");
+        refreshData(true); // Refresh in background
+      } catch (error: any) {
+        console.error("Failed to delete video:", error);
+        toast.error(error.message || "Failed to delete video");
+      }
+    }
+  };
 
   const handleCopyLink = () => {
     if (video?.drive_link) {
@@ -156,7 +173,7 @@ export function VideoDetail() {
         {/* Danger Zone */}
         {role === "editor" && (
           <section className="pt-4">
-            <Button variant="danger" className="w-full">
+            <Button variant="danger" className="w-full" onClick={handleDelete}>
               <Trash2 className="w-4 h-4 mr-2" />
               Delete Video
             </Button>

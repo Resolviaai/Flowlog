@@ -4,11 +4,13 @@ import { Card, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { toast } from "sonner";
 import { hapticFeedback } from "../utils/haptics";
+import { Eye, EyeOff } from "lucide-react";
 
 export function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -65,7 +67,7 @@ export function Auth() {
   return (
     <div className="flex flex-col min-h-screen bg-background p-6 justify-center max-w-md mx-auto">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Resolvia</h1>
+        <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Flow Log</h1>
         <p className="text-text-secondary">{isLogin ? "Welcome back" : "Create your account"}</p>
       </div>
 
@@ -111,14 +113,23 @@ export function Auth() {
             </div>
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-1">Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent"
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-surface border border-border rounded-xl px-4 py-2 pr-10 text-white focus:outline-none focus:ring-2 focus:ring-accent"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>

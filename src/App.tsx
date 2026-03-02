@@ -26,6 +26,15 @@ import { AddRevision } from "./pages/AddRevision";
 function AppContent() {
   const { user, currentWorkspace, isLoading } = useAppContext();
 
+  // Apply accent color to document root
+  React.useEffect(() => {
+    if (currentWorkspace?.accent_color) {
+      document.documentElement.style.setProperty('--color-accent', currentWorkspace.accent_color);
+    } else {
+      document.documentElement.style.removeProperty('--color-accent');
+    }
+  }, [currentWorkspace?.accent_color]);
+
   // Show full-screen loading only during initial app boot or when switching critical states
   if (isLoading && !currentWorkspace && user) {
     return (
@@ -94,7 +103,7 @@ export default function App() {
   return (
     <AppProvider>
       <BrowserRouter>
-        <Toaster theme="dark" position="top-center" />
+        <Toaster theme="dark" position="top-center" duration={3500} />
         <AppContent />
       </BrowserRouter>
     </AppProvider>

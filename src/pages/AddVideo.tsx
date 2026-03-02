@@ -23,6 +23,10 @@ export function AddVideo() {
   const [duration, setDuration] = useState("");
   const [editedBeforePayment, setEditedBeforePayment] = useState(false);
   const [internalNotes, setInternalNotes] = useState("");
+  const [customPrice, setCustomPrice] = useState("");
+  const [priceChangeReason, setPriceChangeReason] = useState("");
+  const [bonusAmount, setBonusAmount] = useState("");
+  const [bonusReason, setBonusReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const activeBatches = batches.filter(b => b.status === "active");
@@ -46,6 +50,10 @@ export function AddVideo() {
         duration_minutes: parseFloat(duration) || 0,
         internal_notes: internalNotes,
         client_feedback_summary: "",
+        custom_price: customPrice ? parseFloat(customPrice) : null,
+        price_change_reason: priceChangeReason || null,
+        bonus_amount: bonusAmount ? parseFloat(bonusAmount) : null,
+        bonus_reason: bonusReason || null,
         workspace_id: currentWorkspace.id
       });
       addVideoToState(newVideo);
@@ -190,6 +198,60 @@ export function AddVideo() {
                 <label htmlFor="editedBeforePayment" className="text-sm text-white">
                   Edited before payment
                 </label>
+              </div>
+
+              <div className="pt-4 border-t border-border">
+                <h3 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Pricing Overrides</h3>
+                
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-text-secondary mb-1">Custom Price (Optional)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={customPrice}
+                        onChange={(e) => setCustomPrice(e.target.value)}
+                        placeholder={`Default: ${currentWorkspace?.rate_per_video}`}
+                        className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-text-secondary mb-1">Reason for Custom Price</label>
+                      <input
+                        type="text"
+                        value={priceChangeReason}
+                        onChange={(e) => setPriceChangeReason(e.target.value)}
+                        placeholder="e.g. Complex edits"
+                        className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-text-secondary mb-1">Bonus Amount (Optional)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={bonusAmount}
+                        onChange={(e) => setBonusAmount(e.target.value)}
+                        placeholder="e.g. 50"
+                        className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-text-secondary mb-1">Reason for Bonus</label>
+                      <input
+                        type="text"
+                        value={bonusReason}
+                        onChange={(e) => setBonusReason(e.target.value)}
+                        placeholder="e.g. Extra revisions"
+                        className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div>

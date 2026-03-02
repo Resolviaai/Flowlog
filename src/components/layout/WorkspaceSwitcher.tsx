@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { useAppContext } from "../../context/AppContext";
-import { Card, CardContent } from "../ui/Card";
-import { ChevronDown, Plus, Check, Briefcase } from "lucide-react";
-import { Button } from "../ui/Button";
+import { Plus, Check, Briefcase } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export function WorkspaceSwitcher() {
@@ -16,14 +14,15 @@ export function WorkspaceSwitcher() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 bg-surface border border-border rounded-xl text-sm font-medium text-white hover:bg-white/5 transition-colors"
+        className="flex items-center justify-between w-full gap-3 px-4 py-2 bg-surface border border-border rounded-full text-sm font-medium text-white hover:bg-white/5 transition-colors"
       >
-        <div 
-          className="w-2 h-2 rounded-full" 
-          style={{ backgroundColor: currentWorkspace.accent_color }} 
-        />
-        <span className="truncate max-w-[120px]">{currentWorkspace.name}</span>
-        <ChevronDown className={`w-4 h-4 text-text-secondary transition-transform ${isOpen ? "rotate-180" : ""}`} />
+        <div className="flex items-center gap-2">
+          <div 
+            className="w-2 h-2 rounded-full bg-success shadow-[0_0_8px_rgba(16,185,129,0.4)]" 
+          />
+          <span className="truncate max-w-[150px]">{currentWorkspace.name}</span>
+        </div>
+        <span className="text-xs text-text-secondary">Tap to switch</span>
       </button>
 
       {isOpen && (
@@ -32,8 +31,8 @@ export function WorkspaceSwitcher() {
             className="fixed inset-0 z-40" 
             onClick={() => setIsOpen(false)} 
           />
-          <Card className="absolute top-full left-0 mt-2 w-64 z-50 shadow-2xl border-border bg-surface">
-            <CardContent className="p-2 space-y-1">
+          <div className="absolute top-full left-0 mt-2 w-full min-w-[240px] z-50 bg-surface border border-border rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-2 space-y-1">
               <p className="text-[10px] font-semibold text-text-secondary uppercase tracking-wider px-2 py-1">
                 Workspaces
               </p>
@@ -84,8 +83,8 @@ export function WorkspaceSwitcher() {
                   <span>Create Workspace</span>
                 </button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </>
       )}
     </div>

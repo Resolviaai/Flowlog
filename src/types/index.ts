@@ -38,6 +38,10 @@ export type Video = {
   duration_minutes: number;
   internal_notes: string;
   client_feedback_summary: string;
+  custom_price?: number | null;
+  price_change_reason?: string | null;
+  bonus_amount?: number | null;
+  bonus_reason?: string | null;
   created_at: string;
   started_at: string | null;
   delivered_at: string | null;

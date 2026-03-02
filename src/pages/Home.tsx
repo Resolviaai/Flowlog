@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { TopBar } from "../components/layout/TopBar";
+import { WorkspaceSwitcher } from "../components/layout/WorkspaceSwitcher";
 import { Card, CardContent } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
 import { formatCurrency, getRelativeTime } from "../utils/helpers";
@@ -14,6 +15,8 @@ export function Home() {
   const { batches, videos, revisions, activityLog, role, profile, currentWorkspace, pendingInvites, refreshData } = useAppContext();
   const navigate = useNavigate();
 
+  const [showAllActivity, setShowAllActivity] = useState(false);
+
   if (!currentWorkspace) return null;
 
   const totalBalance = getTotalBalance(batches, videos);
@@ -25,15 +28,16 @@ export function Home() {
 
   const activeBatches = batches.filter(b => b.status === "active");
   const activeVideos = videos.filter(v => v.status === "in_progress" || v.status === "revision");
-  const recentActivity = activityLog.slice(0, 8);
+  const recentActivity = showAllActivity ? activityLog : activityLog.slice(0, 5);
 
   return (
-    <div className="flex flex-col min-h-screen pb-24">
-      <TopBar 
-        title={`Good morning, ${profile?.full_name?.split(' ')[0] || 'User'}`} 
-        subtitle={new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-        showSwitcher
-        rightAction={
+    <div className="flex flex-col min-h-screen pb-24 px-4 pt-6">
+      {/* Header Section */}
+      <div className="mb-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-text-secondary font-medium">
+            {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </p>
           <button 
             onClick={() => {
               refreshData();
@@ -44,10 +48,12 @@ export function Home() {
           >
             <RefreshCw className="w-4 h-4" />
           </button>
-        }
-      />
+        </div>
+        
+        <WorkspaceSwitcher />
+      </div>
       
-      <div className="p-4 space-y-6">
+      <div className="space-y-6">
         {/* Pending Invites Alert */}
         {pendingInvites.length > 0 && (
           <button 
@@ -69,14 +75,14 @@ export function Home() {
 
         {/* KPI Grid */}
         <div className="grid grid-cols-2 gap-3">
-          <KpiCard title="Total Balance" value={formatCurrency(totalBalance, currentWorkspace.currency_symbol)} icon={<DollarSign className="w-4 h-4 text-accent" />} />
-          <KpiCard title="In Progress" value={inProgressCount} icon={<PlaySquare className="w-4 h-4 text-warning" />} />
-          <KpiCard title="Pending Revs" value={pendingRevisions} icon={<RefreshCw className="w-4 h-4 text-error" />} />
+          <KpiCard title="Total Balance" value={formatCurrency(totalBalance, currentWorkspace.currency_symbol)} />
+          <KpiCard title="In Progress" value={inProgressCount} />
+          <KpiCard title="Pending Revisions" value={pendingRevisions} />
           {role === "editor" && (
             <>
-              <KpiCard title="Revenue Earned" value={formatCurrency(revenueEarned, currentWorkspace.currency_symbol)} icon={<Activity className="w-4 h-4 text-success" />} />
-              <KpiCard title="Unpaid Work" value={formatCurrency(unpaidWorkValue, currentWorkspace.currency_symbol)} icon={<AlertCircle className="w-4 h-4 text-warning" />} />
-              <KpiCard title="Avg Revisions" value={avgRevisions.toFixed(1)} icon={<RefreshCw className="w-4 h-4 text-text-secondary" />} />
+              <KpiCard title="Revenue Earned" value={formatCurrency(revenueEarned, currentWorkspace.currency_symbol)} />
+              <KpiCard title="Unpaid Work" value={formatCurrency(unpaidWorkValue, currentWorkspace.currency_symbol)} />
+              <KpiCard title="Avg Revisions" value={avgRevisions.toFixed(1)} />
             </>
           )}
         </div>
@@ -143,17 +149,29 @@ export function Home() {
           <h2 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Recent Activity</h2>
           <Card>
             <div className="divide-y divide-border">
-              {recentActivity.length > 0 ? recentActivity.map(activity => (
-                <div key={activity.id} className="p-4 flex items-start gap-3">
-                  <div className="mt-0.5 bg-surface p-1.5 rounded-lg text-text-secondary">
-                    <Activity className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-text-primary">{activity.description}</p>
-                    <p className="text-xs text-text-secondary mt-1">{getRelativeTime(activity.created_at)}</p>
-                  </div>
-                </div>
-              )) : (
+              {recentActivity.length > 0 ? (
+                <>
+                  {recentActivity.map(activity => (
+                    <div key={activity.id} className="p-4 flex items-start gap-3">
+                      <div className="mt-0.5 bg-surface p-1.5 rounded-lg text-text-secondary">
+                        <Activity className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm text-text-primary">{activity.description}</p>
+                        <p className="text-xs text-text-secondary mt-1">{getRelativeTime(activity.created_at)}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {activityLog.length > 5 && (
+                    <button 
+                      onClick={() => setShowAllActivity(!showAllActivity)}
+                      className="w-full p-3 text-sm text-accent hover:bg-white/5 transition-colors font-medium"
+                    >
+                      {showAllActivity ? "Show Less" : "Show More"}
+                    </button>
+                  )}
+                </>
+              ) : (
                 <p className="text-sm text-text-secondary text-center py-4">No recent activity.</p>
               )}
             </div>
@@ -164,15 +182,12 @@ export function Home() {
   );
 }
 
-function KpiCard({ title, value, icon }: { title: string; value: string | number; icon: React.ReactNode }) {
+function KpiCard({ title, value, icon }: { title: string; value: string | number; icon?: React.ReactNode }) {
   return (
-    <Card>
-      <CardContent className="p-4 flex flex-col justify-between h-full">
-        <div className="flex items-center gap-2 mb-2 text-text-secondary">
-          {icon}
-          <span className="text-xs font-medium uppercase tracking-wider">{title}</span>
-        </div>
-        <div className="text-xl font-semibold text-text-primary">{value}</div>
+    <Card className="bg-surface border-border">
+      <CardContent className="p-4 flex flex-col justify-between h-24">
+        <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{title}</span>
+        <div className="text-2xl font-bold text-white tracking-tight">{value}</div>
       </CardContent>
     </Card>
   );

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
-import { TopBar } from "../components/layout/TopBar";
 import { Card, CardContent } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
@@ -25,33 +24,31 @@ export function Videos() {
   });
 
   return (
-    <div className="flex flex-col min-h-screen pb-24">
-      <TopBar 
-        title="Videos" 
-        rightAction={
-          <button 
-            onClick={() => {
-              refreshData();
-              hapticFeedback('light');
-              toast.success("Refreshing data...");
-            }} 
-            className="p-2 text-text-secondary hover:text-white transition-colors bg-surface/50 rounded-full"
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
-        }
-      />
+    <div className="flex flex-col min-h-screen pb-24 px-4 pt-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-white tracking-tight">Videos</h1>
+        <button 
+          onClick={() => {
+            refreshData();
+            hapticFeedback('light');
+            toast.success("Refreshing data...");
+          }} 
+          className="p-2 text-text-secondary hover:text-white transition-colors bg-surface/50 rounded-full"
+        >
+          <RefreshCw className="w-5 h-5" />
+        </button>
+      </div>
       
-      <div className="p-4 space-y-4">
+      <div className="space-y-6">
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
           <input
             type="text"
             placeholder="Search videos..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-surface border border-border rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full bg-surface border border-border rounded-2xl pl-12 pr-4 py-3 text-base text-white placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-accent transition-all"
           />
         </div>
 
@@ -61,8 +58,10 @@ export function Videos() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors shrink-0 ${
-                filter === f ? "bg-accent text-white" : "bg-surface text-text-secondary hover:bg-white/5"
+              className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all shrink-0 border ${
+                filter === f 
+                  ? "bg-white text-black border-white" 
+                  : "bg-surface text-text-secondary border-border hover:border-text-secondary hover:text-white"
               }`}
             >
               {f}
