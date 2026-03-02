@@ -4,9 +4,11 @@ import { Card, CardContent } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { toast } from "sonner";
 import { hapticFeedback } from "../utils/haptics";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export function Auth() {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -65,7 +67,14 @@ export function Auth() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background p-6 justify-center max-w-md mx-auto">
+    <div className="flex flex-col min-h-screen bg-background p-6 justify-center max-w-md mx-auto relative">
+      <button 
+        onClick={() => navigate("/")}
+        className="absolute top-6 left-6 p-2 -ml-2 text-text-secondary hover:text-white transition-colors"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </button>
+
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Flow Log</h1>
         <p className="text-text-secondary">{isLogin ? "Welcome back" : "Create your account"}</p>

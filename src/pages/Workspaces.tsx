@@ -44,7 +44,7 @@ export function Workspaces() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background p-6">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-8 max-w-7xl mx-auto w-full">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">My Projects</h1>
           <p className="text-text-secondary text-sm">Welcome back, {profile?.full_name?.split(' ')[0] || 'User'}</p>
@@ -59,7 +59,7 @@ export function Workspaces() {
 
       {/* Pending Invites Section */}
       {pendingInvites.length > 0 && (
-        <section className="mb-8 animate-fade-in">
+        <section className="mb-8 animate-fade-in max-w-7xl mx-auto w-full">
           <div className="flex items-center gap-2 mb-4">
             <Bell className="w-4 h-4 text-accent" />
             <h2 className="text-sm font-semibold text-white uppercase tracking-wider">Pending Invites</h2>
@@ -99,50 +99,52 @@ export function Workspaces() {
         </section>
       )}
 
-      <div className="space-y-4 flex-1">
+      <div className="space-y-4 flex-1 max-w-7xl mx-auto w-full">
         <h2 className="text-sm font-semibold text-text-secondary uppercase tracking-wider mb-2">Workspaces</h2>
-        {workspaces.length > 0 ? (
-          workspaces.map((ws) => (
-            <Card 
-              key={ws.id} 
-              onClick={() => handleSelectWorkspace(ws)}
-              className="group cursor-pointer hover:bg-white/10 transition-all active:scale-[0.98]"
-            >
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-accent/20 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white transition-colors">
-                  <Briefcase className="w-6 h-6" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-white truncate">{ws.name}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-text-secondary flex items-center gap-1">
-                      <User className="w-3 h-3" />
-                      {ws.editor_id === profile?.id ? "Editor" : "Client"}
-                    </span>
-                    <span className="w-1 h-1 rounded-full bg-border" />
-                    <span className="text-xs text-text-secondary">
-                      {ws.currency_symbol}{ws.rate_per_video}/video
-                    </span>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {workspaces.length > 0 ? (
+            workspaces.map((ws) => (
+              <Card 
+                key={ws.id} 
+                onClick={() => handleSelectWorkspace(ws)}
+                className="group cursor-pointer hover:bg-white/10 transition-all active:scale-[0.98]"
+              >
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-accent/20 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white transition-colors">
+                    <Briefcase className="w-6 h-6" />
                   </div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-text-secondary group-hover:text-white transition-colors" />
-              </CardContent>
-            </Card>
-          ))
-        ) : (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-surface flex items-center justify-center mb-4">
-              <Plus className="w-8 h-8 text-text-secondary" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-white truncate">{ws.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-text-secondary flex items-center gap-1">
+                        <User className="w-3 h-3" />
+                        {ws.editor_id === profile?.id ? "Editor" : "Client"}
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-border" />
+                      <span className="text-xs text-text-secondary">
+                        {ws.currency_symbol}{ws.rate_per_video}/video
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-text-secondary group-hover:text-white transition-colors" />
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+              <div className="w-16 h-16 rounded-full bg-surface flex items-center justify-center mb-4">
+                <Plus className="w-8 h-8 text-text-secondary" />
+              </div>
+              <h3 className="text-lg font-medium text-white">No projects yet</h3>
+              <p className="text-text-secondary text-sm mt-2 max-w-[200px]">
+                Create your first workspace to start managing your editing workflow.
+              </p>
             </div>
-            <h3 className="text-lg font-medium text-white">No projects yet</h3>
-            <p className="text-text-secondary text-sm mt-2 max-w-[200px]">
-              Create your first workspace to start managing your editing workflow.
-            </p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8 max-w-7xl mx-auto w-full">
         <Button 
           onClick={handleCreateNew}
           className="w-full py-4 rounded-2xl flex items-center justify-center gap-2"

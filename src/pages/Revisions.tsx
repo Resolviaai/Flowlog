@@ -32,7 +32,7 @@ export function Revisions() {
       
       <div className="space-y-6">
         {/* Summary */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-3 md:gap-6">
           <div className="bg-surface rounded-2xl p-4 flex flex-col justify-between h-24 border border-border">
             <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Total</p>
             <p className="text-lg font-bold text-white tracking-tight">{totalRevisions}</p>
@@ -51,7 +51,7 @@ export function Revisions() {
         </div>
 
         {/* Filters */}
-        <div className="flex overflow-x-auto pb-2 -mx-4 px-4 space-x-2 no-scrollbar">
+        <div className="flex overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 space-x-2 no-scrollbar">
           {["All", "Flagged (3+)", "Has Open Revisions"].map(f => (
             <button
               key={f}
@@ -68,7 +68,7 @@ export function Revisions() {
         </div>
 
         {/* Revision List */}
-        <div className="space-y-3">
+        <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-4 md:space-y-0">
           {displayVideos.length > 0 ? displayVideos.map(video => {
             const videoRevs = revisions.filter(r => r.video_id === video.id).sort((a, b) => b.revision_number - a.revision_number);
             const totalRevs = videoRevs.length;

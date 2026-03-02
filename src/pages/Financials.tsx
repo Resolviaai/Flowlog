@@ -54,12 +54,12 @@ export function Financials() {
       
       <div className="p-4 space-y-6">
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
           <StatCard title="Total Paid" value={formatCurrency(totalPaid, currentWorkspace.currency_symbol)} color="text-white" />
           <StatCard title="Work Delivered" value={formatCurrency(workDeliveredValue, currentWorkspace.currency_symbol)} color="text-success" />
           <StatCard title="Current Balance" value={formatCurrency(currentBalance, currentWorkspace.currency_symbol)} color="text-accent" />
           <StatCard title="Unpaid Work" value={formatCurrency(unpaidWork, currentWorkspace.currency_symbol)} color="text-warning" />
-          <StatCard title="True Net" value={formatCurrency(trueNet, currentWorkspace.currency_symbol)} color={trueNet >= 0 ? "text-success" : "text-error"} className="col-span-2" />
+          <StatCard title="True Net" value={formatCurrency(trueNet, currentWorkspace.currency_symbol)} color={trueNet >= 0 ? "text-success" : "text-error"} className="col-span-2 md:col-span-1" />
         </div>
 
         {/* Batch Breakdown */}
@@ -107,19 +107,19 @@ export function Financials() {
         {unpaidVideos.length > 0 && (
           <section>
             <h2 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Unpaid Work</h2>
-            <Card>
-              <div className="divide-y divide-border">
-                {unpaidVideos.map(v => (
-                  <div key={v.id} className="p-4 flex justify-between items-center">
-                    <div>
-                      <h3 className="font-medium text-white">{v.title}</h3>
+            <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-4 md:space-y-0">
+              {unpaidVideos.map(v => (
+                <Card key={v.id}>
+                  <CardContent className="p-4 flex justify-between items-center">
+                    <div className="min-w-0 pr-4">
+                      <h3 className="font-medium text-white truncate">{v.title}</h3>
                       <p className="text-xs text-text-secondary mt-1">{v.status.replace("_", " ").toUpperCase()}</p>
                     </div>
-                    <span className="font-medium text-warning">{formatCurrency(currentWorkspace.rate_per_video, currentWorkspace.currency_symbol)}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
+                    <span className="font-medium text-warning flex-shrink-0">{formatCurrency(currentWorkspace.rate_per_video, currentWorkspace.currency_symbol)}</span>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </section>
         )}
 

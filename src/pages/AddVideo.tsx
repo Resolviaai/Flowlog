@@ -81,7 +81,7 @@ export function AddVideo() {
         }
       />
       
-      <div className="p-4">
+      <div className="p-4 max-w-3xl mx-auto w-full">
         <Card>
           <CardContent className="p-4">
             <form onSubmit={handleSubmit} className="space-y-4">

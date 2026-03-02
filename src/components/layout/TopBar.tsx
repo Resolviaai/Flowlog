@@ -14,7 +14,7 @@ interface TopBarProps {
 export function TopBar({ title, subtitle, rightAction, leftAction, showSwitcher, className }: TopBarProps) {
   return (
     <div className={cn("sticky top-0 z-40 bg-background border-b border-border pt-safe", className)}>
-      <div className="flex items-center justify-between px-4 h-14 max-w-md mx-auto">
+      <div className="flex items-center justify-between px-4 h-14 max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-3 overflow-hidden">
           {leftAction}
           <div className="min-w-0">

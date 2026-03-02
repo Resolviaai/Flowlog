@@ -153,11 +153,11 @@ export function Settings() {
         }
       />
       
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-6 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:space-y-0">
         {/* General */}
         {role === "editor" && (
           <>
-            <section>
+            <section className="md:col-span-2 lg:col-span-1">
               <h2 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Workspace</h2>
               <Card>
                 <CardContent className="p-4 space-y-4">
@@ -175,7 +175,7 @@ export function Settings() {
             </section>
 
             {/* Members */}
-            <section>
+            <section className="md:col-span-2 lg:col-span-2 md:row-span-2">
               <h2 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Members</h2>
               <Card>
                 <CardContent className="p-4 space-y-4">
@@ -285,7 +285,7 @@ export function Settings() {
             </section>
 
             {/* Financial */}
-            <section>
+            <section className="md:col-span-1 lg:col-span-1">
               <h2 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Financial</h2>
               <Card>
                 <CardContent className="p-4 space-y-4">
@@ -312,7 +312,7 @@ export function Settings() {
             </section>
 
             {/* Appearance */}
-            <section>
+            <section className="md:col-span-1 lg:col-span-1">
               <h2 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Appearance</h2>
               <Card>
                 <CardContent className="p-4">
@@ -332,7 +332,7 @@ export function Settings() {
             </section>
 
             {/* Danger Zone */}
-            <section>
+            <section className="md:col-span-2 lg:col-span-1">
               <h2 className="text-sm font-semibold text-error mb-3 uppercase tracking-wider">Danger Zone</h2>
               <Card className="border-error/20">
                 <CardContent className="p-4 space-y-4">
@@ -370,7 +370,7 @@ export function Settings() {
         )}
 
         {/* Logout */}
-        <section>
+        <section className="md:col-span-2 lg:col-span-3">
           <Button variant="secondary" className="w-full" onClick={handleLogout}>
             Logout
           </Button>

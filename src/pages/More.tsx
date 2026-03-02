@@ -27,7 +27,7 @@ export function More() {
     <div className="flex flex-col min-h-screen pb-24">
       <TopBar title="More" />
       
-      <div className="p-4 space-y-4">
+      <div className="p-4 space-y-4 max-w-3xl mx-auto w-full">
         <Card>
           <div className="divide-y divide-border">
             {links.map((link) => (

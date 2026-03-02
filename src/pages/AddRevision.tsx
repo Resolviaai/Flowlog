@@ -68,7 +68,7 @@ export function AddRevision() {
         }
       />
       
-      <div className="p-4">
+      <div className="p-4 max-w-3xl mx-auto w-full">
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card>
             <CardContent className="p-4 space-y-4">

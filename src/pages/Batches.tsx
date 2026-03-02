@@ -37,7 +37,7 @@ export function Batches() {
       
       <div className="space-y-6">
         {/* Summary */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-3 md:gap-6">
           <div className="bg-surface rounded-2xl p-4 flex flex-col justify-between h-24 border border-border">
             <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Total Paid</p>
             <p className="text-lg font-bold text-white tracking-tight">{formatCurrency(totalPaid, currentWorkspace.currency_symbol)}</p>
@@ -53,7 +53,7 @@ export function Batches() {
         </div>
 
         {/* Batch List */}
-        <div className="space-y-3">
+        <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-4 md:space-y-0">
           {batches.length > 0 ? batches.map(batch => {
             const balance = getBatchBalance(batch, videos);
             const videosCount = videos.filter(v => v.batch_id === batch.id).length;

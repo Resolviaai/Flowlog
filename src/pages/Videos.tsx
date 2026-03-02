@@ -53,7 +53,7 @@ export function Videos() {
         </div>
 
         {/* Filters */}
-        <div className="flex overflow-x-auto pb-2 -mx-4 px-4 space-x-2 no-scrollbar">
+        <div className="flex overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 space-x-2 no-scrollbar">
           {filters.map(f => (
             <button
               key={f}
@@ -70,7 +70,7 @@ export function Videos() {
         </div>
 
         {/* Video List */}
-        <div className="space-y-3">
+        <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-4 md:space-y-0">
           {filteredVideos.length > 0 ? filteredVideos.map(video => {
             const batch = batches.find(b => b.id === video.batch_id);
             const revCount = revisions.filter(r => r.video_id === video.id).length;

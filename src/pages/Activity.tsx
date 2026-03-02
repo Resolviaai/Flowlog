@@ -52,9 +52,9 @@ export function Activity() {
         }
       />
       
-      <div className="p-4 space-y-4">
+      <div className="p-4 space-y-4 max-w-3xl mx-auto w-full">
         {/* Filters */}
-        <div className="flex overflow-x-auto pb-2 -mx-4 px-4 space-x-2 no-scrollbar">
+        <div className="flex overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 space-x-2 no-scrollbar">
           {filters.map(f => (
             <button
               key={f}
@@ -69,7 +69,7 @@ export function Activity() {
         </div>
 
         {/* Date Ranges */}
-        <div className="flex overflow-x-auto pb-2 -mx-4 px-4 space-x-2 no-scrollbar">
+        <div className="flex overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 space-x-2 no-scrollbar">
           {dateRanges.map(dr => (
             <button
               key={dr}

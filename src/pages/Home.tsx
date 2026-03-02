@@ -74,7 +74,7 @@ export function Home() {
         )}
 
         {/* KPI Grid */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
           <KpiCard title="Total Balance" value={formatCurrency(totalBalance, currentWorkspace.currency_symbol)} />
           <KpiCard title="In Progress" value={inProgressCount} />
           <KpiCard title="Pending Revisions" value={pendingRevisions} />
@@ -90,7 +90,7 @@ export function Home() {
         {/* Batch Progress */}
         <section>
           <h2 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Active Batches</h2>
-          <div className="space-y-3">
+          <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
             {activeBatches.length > 0 ? activeBatches.map(batch => {
               const balance = getBatchBalance(batch, videos);
               const percent = Math.max(0, Math.min(100, (balance / batch.amount_paid) * 100));
@@ -120,12 +120,12 @@ export function Home() {
         {/* Active Videos */}
         <section>
           <h2 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Active Videos</h2>
-          <div className="flex overflow-x-auto pb-4 -mx-4 px-4 space-x-3 no-scrollbar">
+          <div className="flex md:grid overflow-x-auto md:overflow-visible pb-4 -mx-4 px-4 md:mx-0 md:px-0 space-x-3 md:space-x-0 md:gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 no-scrollbar">
             {activeVideos.length > 0 ? activeVideos.map(video => {
               const batch = batches.find(b => b.id === video.batch_id);
               const revCount = revisions.filter(r => r.video_id === video.id).length;
               return (
-                <Card key={video.id} className="min-w-[240px] flex-shrink-0">
+                <Card key={video.id} className="min-w-[240px] md:min-w-0 flex-shrink-0 md:flex-shrink">
                   <CardContent className="p-4">
                     <h3 className="font-medium truncate mb-2">{video.title}</h3>
                     <div className="flex items-center gap-2 mb-3">

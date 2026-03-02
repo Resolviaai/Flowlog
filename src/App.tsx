@@ -16,6 +16,7 @@ import { Activity } from "./pages/Activity";
 import { Settings } from "./pages/Settings";
 import { Auth } from "./pages/Auth";
 import { Workspaces } from "./pages/Workspaces";
+import { LandingPage } from "./pages/LandingPage";
 
 import { AddVideo } from "./pages/AddVideo";
 import { EditVideo } from "./pages/EditVideo";
@@ -58,7 +59,13 @@ function AppContent() {
   }
 
   if (!user) {
-    return <Auth />;
+    return (
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
   }
 
   if (!currentWorkspace) {
@@ -71,8 +78,8 @@ function AppContent() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-text-primary pb-20">
-      <main className="flex-1 max-w-md mx-auto w-full">
+    <div className="flex flex-col min-h-screen bg-background text-text-primary pb-20 md:pb-0 md:pl-64">
+      <main className="flex-1 max-w-7xl mx-auto w-full">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/workspaces" element={<Workspaces />} />
