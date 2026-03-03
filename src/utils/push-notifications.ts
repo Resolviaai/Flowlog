@@ -34,15 +34,22 @@ export async function subscribeUserToPush() {
 
   try {
     const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-    });
+    
+    // Check for existing subscription
+    let subscription = await registration.pushManager.getSubscription();
+    
+    if (!subscription) {
+      // Subscribe if no existing subscription
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+    }
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Save subscription to Supabase
+    // Save/Update subscription to Supabase
     const { error } = await supabase
       .from('push_subscriptions')
       .upsert({
@@ -55,7 +62,7 @@ export async function subscribeUserToPush() {
     if (error) {
       console.error('Error saving push subscription to Supabase:', error);
     } else {
-      console.log('Push subscription saved to Supabase');
+      console.log('Push subscription synced with Supabase');
     }
   } catch (error) {
     console.error('Failed to subscribe user to push:', error);
@@ -76,15 +83,17 @@ export async function requestNotificationPermission() {
   return false;
 }
 
-export async function sendPushNotification(userIds: string[], title: string, body: string, data?: any) {
+export async function sendPushNotification(userIds: string[] | string, title: string, body: string, data?: any) {
   try {
+    const ids = Array.isArray(userIds) ? userIds : [userIds];
+    
     const response = await fetch('/api/send-push', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        user_ids: userIds,
+        user_ids: ids,
         title,
         body,
         data,

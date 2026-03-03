@@ -5,7 +5,7 @@ import { supabase } from "../lib/supabase";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
 import { sendBrowserNotification } from "../utils/notifications";
-import { registerServiceWorker, requestNotificationPermission as requestPushPermission, sendPushNotification } from "../utils/push-notifications";
+import { registerServiceWorker, requestNotificationPermission as requestPushPermission, sendPushNotification, subscribeUserToPush } from "../utils/push-notifications";
 
 type AppContextType = {
   user: User | null;
@@ -231,6 +231,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           if (initialWs) {
             setCurrentWorkspaceState(initialWs);
           }
+
+          // Sync push subscription if permission is already granted
+          if (Notification.permission === 'granted') {
+            subscribeUserToPush();
+          }
         }
       } catch (error) {
         console.error("Critical initialization error:", error);
@@ -256,6 +261,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         init();
+        if (Notification.permission === 'granted') {
+          subscribeUserToPush();
+        }
       } else if (event === 'SIGNED_OUT') {
         setProfile(null);
         setWorkspaces([]);

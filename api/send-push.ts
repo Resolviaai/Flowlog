@@ -20,10 +20,21 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { user_ids, title, body, data } = req.body;
+  let { user_ids, title, body, data } = req.body;
 
-  if (!user_ids || !Array.isArray(user_ids) || user_ids.length === 0) {
-    return res.status(400).json({ error: 'user_ids is required and must be a non-empty array' });
+  // Handle singular user_id if provided
+  if (req.body.user_id && !user_ids) {
+    user_ids = [req.body.user_id];
+  }
+
+  if (!user_ids) {
+    return res.status(400).json({ error: 'user_ids is required' });
+  }
+
+  const ids = Array.isArray(user_ids) ? user_ids : [user_ids];
+
+  if (ids.length === 0) {
+    return res.status(400).json({ error: 'user_ids must be a non-empty array' });
   }
 
   try {
@@ -31,7 +42,7 @@ export default async function handler(req: any, res: any) {
     const { data: subscriptions, error } = await supabase
       .from('push_subscriptions')
       .select('subscription')
-      .in('user_id', user_ids);
+      .in('user_id', ids);
 
     if (error) {
       console.error('Error fetching push subscriptions:', error);
