@@ -19,6 +19,8 @@ export function Settings() {
   const [rate, setRate] = useState(currentWorkspace?.rate_per_video.toString() || "");
   const [currency, setCurrency] = useState(currentWorkspace?.currency_symbol || "");
   const [color, setColor] = useState(currentWorkspace?.accent_color || "#6366F1");
+  const [paymentDetails, setPaymentDetails] = useState(currentWorkspace?.payment_details || "");
+  const [paymentQrUrl, setPaymentQrUrl] = useState(currentWorkspace?.payment_qr_url || "");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteUsername, setInviteUsername] = useState("");
   const [inviteRole, setInviteRole] = useState<"editor" | "client">("client");
@@ -86,6 +88,8 @@ export function Settings() {
         rate_per_video: parseFloat(rate) || 18,
         currency_symbol: currency,
         accent_color: color,
+        payment_details: paymentDetails,
+        payment_qr_url: paymentQrUrl,
       });
       // Also update workspace name if changed
       if (workspaceName !== currentWorkspace.name) {
@@ -331,6 +335,39 @@ export function Settings() {
               </Card>
             </section>
 
+            {/* Payment Details */}
+            <section className="md:col-span-2 lg:col-span-2">
+              <h2 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Payment Details</h2>
+              <Card>
+                <CardContent className="p-4 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-1">Payment Instructions / Details</label>
+                    <textarea
+                      value={paymentDetails}
+                      onChange={(e) => setPaymentDetails(e.target.value)}
+                      placeholder="Enter bank details, PayPal email, UPI ID, etc."
+                      className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent min-h-[100px]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-1">QR Code Image URL</label>
+                    <input
+                      type="text"
+                      value={paymentQrUrl}
+                      onChange={(e) => setPaymentQrUrl(e.target.value)}
+                      placeholder="https://example.com/qr-code.png"
+                      className="w-full bg-surface border border-border rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent mb-2"
+                    />
+                    {paymentQrUrl && (
+                      <div className="mt-2 border border-border rounded-xl p-2 bg-white/5 inline-block">
+                        <img src={paymentQrUrl} alt="Payment QR" className="max-w-[200px] max-h-[200px] object-contain" referrerPolicy="no-referrer" />
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
             {/* Danger Zone */}
             <section className="md:col-span-2 lg:col-span-1">
               <h2 className="text-sm font-semibold text-error mb-3 uppercase tracking-wider">Danger Zone</h2>
@@ -367,6 +404,33 @@ export function Settings() {
               </Card>
             </section>
           </>
+        )}
+
+        {/* Client Payment Details View */}
+        {role === "client" && (currentWorkspace.payment_details || currentWorkspace.payment_qr_url) && (
+          <section className="md:col-span-2 lg:col-span-3">
+            <h2 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Payment Information</h2>
+            <Card>
+              <CardContent className="p-6 space-y-6">
+                {currentWorkspace.payment_qr_url && (
+                  <div className="flex flex-col items-center justify-center space-y-3">
+                    <div className="bg-white p-4 rounded-2xl">
+                      <img src={currentWorkspace.payment_qr_url} alt="Payment QR Code" className="w-48 h-48 object-contain" referrerPolicy="no-referrer" />
+                    </div>
+                    <p className="text-sm text-text-secondary">Scan to pay</p>
+                  </div>
+                )}
+                {currentWorkspace.payment_details && (
+                  <div>
+                    <h3 className="text-sm font-medium text-white mb-2">Payment Details</h3>
+                    <div className="bg-surface border border-border rounded-xl p-4">
+                      <p className="text-sm text-text-primary whitespace-pre-wrap">{currentWorkspace.payment_details}</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </section>
         )}
 
         {/* Logout */}

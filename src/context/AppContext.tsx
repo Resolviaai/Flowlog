@@ -4,6 +4,8 @@ import { settingsService, batchService, videoService, revisionService, activityS
 import { supabase } from "../lib/supabase";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
+import { sendBrowserNotification } from "../utils/notifications";
+import { registerServiceWorker, requestNotificationPermission as requestPushPermission, sendPushNotification } from "../utils/push-notifications";
 
 type AppContextType = {
   user: User | null;
@@ -22,7 +24,7 @@ type AppContextType = {
   refreshData: (background?: boolean) => Promise<void>;
   refreshInvites: () => Promise<void>;
   refreshWorkspaces: () => Promise<void>;
-  updateSettings: (newSettings: Partial<Settings>) => Promise<void>;
+  updateSettings: (newSettings: Partial<Workspace>) => Promise<void>;
   addVideoToState: (video: Video) => void;
   updateVideoInState: (video: Video) => void;
   removeVideoFromState: (id: string) => void;
@@ -112,7 +114,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateSettings = async (newSettings: Partial<Settings>) => {
+  const updateSettings = async (newSettings: Partial<Workspace>) => {
     if (!currentWorkspace) return;
     // Settings are now mostly part of Workspace, but we keep the service for compatibility if needed
     // or we update the workspace itself
@@ -120,6 +122,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       rate_per_video: newSettings.rate_per_video,
       currency_symbol: newSettings.currency_symbol,
       accent_color: newSettings.accent_color,
+      payment_details: newSettings.payment_details,
+      payment_qr_url: newSettings.payment_qr_url,
     });
     setCurrentWorkspaceState(updated);
   };
@@ -179,7 +183,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       if (!currentWorkspace) setIsLoading(true);
       
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          if (sessionError.message.includes("Refresh Token Not Found") || sessionError.message.includes("Invalid Refresh Token")) {
+            await supabase.auth.signOut();
+          }
+        }
+
         if (!mounted) return;
         
         const currentUser = session?.user ?? null;
@@ -229,6 +241,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     init();
 
+    // Register service worker and request push permission
+    registerServiceWorker();
+    if (Notification.permission === 'default') {
+      requestPushPermission();
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
       
@@ -269,9 +287,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           table: 'videos',
           filter: `workspace_id=eq.${currentWorkspace.id}`,
         },
-        () => {
+        (payload) => {
           videoService.getAllVideos(currentWorkspace.id).then(setVideos);
           activityService.getActivityLog(currentWorkspace.id, 50).then(setActivityLog);
+          
+          const otherUserIds = [currentWorkspace.editor_id, currentWorkspace.client_id].filter(id => id && id !== user?.id) as string[];
+
+          if (payload.eventType === 'INSERT') {
+            sendBrowserNotification("New Video Added", { body: (payload.new as any).title });
+            sendPushNotification(otherUserIds, "🎬 New Video Added", `A new video "${(payload.new as any).title}" was added to ${currentWorkspace.name}`);
+          } else if (payload.eventType === 'UPDATE') {
+            sendBrowserNotification("Video Updated", { body: (payload.new as any).title });
+            sendPushNotification(otherUserIds, "🎬 Video Updated", `Video "${(payload.new as any).title}" was updated in ${currentWorkspace.name}`);
+          }
         }
       )
       .on(
@@ -282,9 +310,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           table: 'payment_batches',
           filter: `workspace_id=eq.${currentWorkspace.id}`,
         },
-        () => {
+        (payload) => {
           batchService.getAllBatches(currentWorkspace.id).then(setBatches);
           activityService.getActivityLog(currentWorkspace.id, 50).then(setActivityLog);
+          
+          const otherUserIds = [currentWorkspace.editor_id, currentWorkspace.client_id].filter(id => id && id !== user?.id) as string[];
+
+          if (payload.eventType === 'INSERT') {
+            sendBrowserNotification("New Batch Added", { body: (payload.new as any).label });
+            sendPushNotification(otherUserIds, "💰 New Payment Batch", `A new payment batch "${(payload.new as any).label}" was created in ${currentWorkspace.name}`);
+          } else if (payload.eventType === 'UPDATE') {
+            sendBrowserNotification("Batch Updated", { body: (payload.new as any).label });
+            sendPushNotification(otherUserIds, "💰 Payment Batch Updated", `Payment batch "${(payload.new as any).label}" was updated in ${currentWorkspace.name}`);
+          }
         }
       )
       .on(
@@ -295,9 +333,23 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           table: 'revisions',
           filter: `workspace_id=eq.${currentWorkspace.id}`,
         },
-        () => {
+        (payload) => {
           revisionService.getAllRevisions(currentWorkspace.id).then(setRevisions);
           activityService.getActivityLog(currentWorkspace.id, 50).then(setActivityLog);
+          
+          const otherUserIds = [currentWorkspace.editor_id, currentWorkspace.client_id].filter(id => id && id !== user?.id) as string[];
+
+          if (payload.eventType === 'INSERT') {
+            sendBrowserNotification("New Revision Requested", { body: (payload.new as any).client_notes });
+            sendPushNotification(otherUserIds, "🔄 New Revision Requested", `A new revision was requested in ${currentWorkspace.name}`);
+          } else if (payload.eventType === 'UPDATE') {
+            sendBrowserNotification("Revision Updated", { body: `Status: ${(payload.new as any).status}` });
+            if ((payload.new as any).status === 'completed') {
+              sendPushNotification(otherUserIds, "✅ Revision Completed", `A revision was marked as complete in ${currentWorkspace.name}`);
+            } else {
+              sendPushNotification(otherUserIds, "🔄 Revision Updated", `A revision was updated in ${currentWorkspace.name} (Status: ${(payload.new as any).status})`);
+            }
+          }
         }
       )
       .on(
@@ -313,6 +365,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           setCurrentWorkspaceState(prev => prev ? { ...prev, ...updatedWorkspace } : null);
           setWorkspaces(prev => prev.map(w => w.id === updatedWorkspace.id ? updatedWorkspace : w));
           activityService.getActivityLog(currentWorkspace.id, 50).then(setActivityLog);
+          
+          const otherUserIds = [currentWorkspace.editor_id, currentWorkspace.client_id].filter(id => id && id !== user?.id) as string[];
+
+          if (payload.eventType === 'UPDATE') {
+            sendBrowserNotification("Workspace Settings Updated", { body: updatedWorkspace.name });
+            sendPushNotification(otherUserIds, "⚙️ Workspace Settings Updated", `Settings for ${updatedWorkspace.name} were updated`);
+          }
         }
       )
       .subscribe();

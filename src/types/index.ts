@@ -107,6 +107,8 @@ export type Workspace = {
   currency_symbol: string;
   accent_color: string;
   project_start_date: string | null;
+  payment_details?: string | null;
+  payment_qr_url?: string | null;
   created_at: string;
   updated_at?: string;
 };

@@ -6,9 +6,11 @@ import { getRelativeTime } from "../utils/helpers";
 import { getAverageRevisions } from "../utils/financials";
 import { RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { revisionService } from "../services/api";
 
 export function Revisions() {
-  const { videos, revisions } = useAppContext();
+  const { videos, revisions, role, refreshData } = useAppContext();
   const navigate = useNavigate();
   const [filter, setFilter] = useState<string>("All");
   const [expandedVideoId, setExpandedVideoId] = useState<string | null>(null);
@@ -123,6 +125,23 @@ export function Revisions() {
                             </Badge>
                             {rev.time_spent_minutes > 0 && (
                               <span className="text-xs text-text-secondary">{rev.time_spent_minutes}m spent</span>
+                            )}
+                            {role === "editor" && rev.status !== "completed" && (
+                              <button 
+                                className="ml-auto text-xs bg-accent text-white px-2 py-1 rounded-md hover:bg-accent/80 transition-colors"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  try {
+                                    await revisionService.updateRevision(rev.id, { status: "completed" });
+                                    toast.success("Revision marked as complete");
+                                    refreshData(true);
+                                  } catch (error: any) {
+                                    toast.error("Failed to update revision");
+                                  }
+                                }}
+                              >
+                                Mark Complete
+                              </button>
                             )}
                           </div>
                         </div>

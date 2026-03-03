@@ -9,7 +9,7 @@ import { formatDate, getRelativeTime } from "../utils/helpers";
 import { ArrowLeft, ExternalLink, Copy, Clock, Edit2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { videoService } from "../services/api";
+import { videoService, revisionService } from "../services/api";
 
 export function VideoDetail() {
   const { id } = useParams<{ id: string }>();
@@ -119,7 +119,27 @@ export function VideoDetail() {
                     <p className="text-sm text-text-primary mb-2">"{rev.client_notes}"</p>
                     <div className="flex justify-between items-center mt-3 text-xs text-text-secondary">
                       <span>{getRelativeTime(rev.requested_at)}</span>
-                      {rev.time_spent_minutes > 0 && <span>{rev.time_spent_minutes}m spent</span>}
+                      <div className="flex items-center gap-3">
+                        {rev.time_spent_minutes > 0 && <span>{rev.time_spent_minutes}m spent</span>}
+                        {role === "editor" && rev.status !== "completed" && (
+                          <Button 
+                            variant="primary" 
+                            size="sm" 
+                            className="h-7 text-xs px-2"
+                            onClick={async () => {
+                              try {
+                                await revisionService.updateRevision(rev.id, { status: "completed" });
+                                toast.success("Revision marked as complete");
+                                refreshData(true);
+                              } catch (error: any) {
+                                toast.error("Failed to update revision");
+                              }
+                            }}
+                          >
+                            Mark Complete
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

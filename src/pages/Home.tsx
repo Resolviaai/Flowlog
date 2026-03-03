@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAppContext } from "../context/AppContext";
 import { TopBar } from "../components/layout/TopBar";
 import { WorkspaceSwitcher } from "../components/layout/WorkspaceSwitcher";
@@ -10,12 +10,17 @@ import { Activity, PlaySquare, RefreshCw, DollarSign, AlertCircle, Bell, Chevron
 import { useNavigate } from "react-router-dom";
 import { hapticFeedback } from "../utils/haptics";
 import { toast } from "sonner";
+import { requestNotificationPermission } from "../utils/notifications";
 
 export function Home() {
   const { batches, videos, revisions, activityLog, role, profile, currentWorkspace, pendingInvites, refreshData } = useAppContext();
   const navigate = useNavigate();
 
   const [showAllActivity, setShowAllActivity] = useState(false);
+
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   if (!currentWorkspace) return null;
 
@@ -26,7 +31,7 @@ export function Home() {
   const unpaidWorkValue = getUnpaidWorkValue(videos, currentWorkspace.rate_per_video);
   const avgRevisions = getAverageRevisions(videos, revisions);
 
-  const activeBatches = batches.filter(b => b.status === "active");
+  const displayBatches = batches.filter(b => ["active", "exhausted", "overpaid"].includes(b.status));
   const activeVideos = videos.filter(v => v.status === "in_progress" || v.status === "revision");
   const recentActivity = showAllActivity ? activityLog : activityLog.slice(0, 5);
 
@@ -89,9 +94,9 @@ export function Home() {
 
         {/* Batch Progress */}
         <section>
-          <h2 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Active Batches</h2>
+          <h2 className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Batches</h2>
           <div className="space-y-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:space-y-0">
-            {activeBatches.length > 0 ? activeBatches.map(batch => {
+            {displayBatches.length > 0 ? displayBatches.map(batch => {
               const balance = getBatchBalance(batch, videos);
               const percent = Math.max(0, Math.min(100, (balance / batch.amount_paid) * 100));
               let colorClass = "bg-success";
@@ -99,7 +104,11 @@ export function Home() {
               else if (percent < 50) colorClass = "bg-warning";
 
               return (
-                <Card key={batch.id}>
+                <Card 
+                  key={batch.id} 
+                  onClick={() => navigate(`/batches/${batch.id}`)}
+                  className="cursor-pointer hover:bg-white/5 transition-colors"
+                >
                   <CardContent className="p-4">
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-medium">{batch.label}</span>
@@ -112,7 +121,7 @@ export function Home() {
                 </Card>
               );
             }) : (
-              <p className="text-sm text-text-secondary text-center py-4">No active batches.</p>
+              <p className="text-sm text-text-secondary text-center py-4">No batches found.</p>
             )}
           </div>
         </section>
