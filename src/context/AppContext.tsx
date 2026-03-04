@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from "react";
 import { Settings, PaymentBatch, Video, Revision, ActivityLog, Profile, Workspace } from "../types";
 import { settingsService, batchService, videoService, revisionService, activityService, profileService, workspaceService, loadSampleData } from "../services/api";
 import { supabase } from "../lib/supabase";
@@ -49,6 +49,85 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [pendingInvites, setPendingInvites] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [role, setRoleState] = useState<"editor" | "client" | "both" | null>(null);
+  const isInitializing = useRef(false);
+  const currentWorkspaceRef = useRef(currentWorkspace);
+
+  useEffect(() => {
+    currentWorkspaceRef.current = currentWorkspace;
+  }, [currentWorkspace]);
+
+  const init = React.useCallback(async () => {
+    if (isInitializing.current) return;
+    isInitializing.current = true;
+    
+    // Only show global loading if we don't have a workspace yet
+    if (!currentWorkspaceRef.current) setIsLoading(true);
+    
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.warn("Session error detected, clearing local session:", sessionError.message);
+        await supabase.auth.signOut();
+        setUser(null);
+        setProfile(null);
+        setWorkspaces([]);
+        setCurrentWorkspace(null);
+        setRoleState(null);
+        localStorage.removeItem("resolvia_role");
+        localStorage.removeItem("resolvia_workspace_id");
+        setIsLoading(false);
+        return;
+      }
+
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+
+      if (currentUser) {
+        // Fetch profile and workspaces in parallel with individual error handling
+        const [p, ws] = await Promise.all([
+          profileService.getProfile(currentUser.id).catch(err => {
+            console.warn("Profile fetch failed, might not exist yet:", err);
+            return null;
+          }),
+          workspaceService.getWorkspaces(currentUser.id).catch(err => {
+            console.error("Workspace fetch failed:", err);
+            return [];
+          })
+        ]);
+        
+        if (p) {
+          setProfile(p);
+          setRoleState(p.role);
+        }
+        
+        setWorkspaces(ws || []);
+        
+        // Fetch pending invites for the user
+        if (p) {
+          const invites = await workspaceService.getPendingInvites(currentUser.email, p.username);
+          setPendingInvites(invites);
+        }
+        
+        const savedWsId = localStorage.getItem("resolvia_workspace_id");
+        const initialWs = ws?.find(w => w.id === savedWsId) || null;
+        
+        if (initialWs) {
+          setCurrentWorkspaceState(initialWs);
+        }
+
+        // Sync push subscription if permission is already granted
+        if (Notification.permission === 'granted') {
+          subscribeUserToPush();
+        }
+      }
+    } catch (error) {
+      console.error("Critical initialization error:", error);
+    } finally {
+      setIsLoading(false);
+      isInitializing.current = false;
+    }
+  }, []);
 
   const setCurrentWorkspace = (workspace: Workspace | null) => {
     setCurrentWorkspaceState(workspace);
@@ -178,79 +257,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let mounted = true;
 
-    const init = async () => {
-      // Only show global loading if we don't have a workspace yet
-      if (!currentWorkspace) setIsLoading(true);
-      
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.warn("Session error detected, clearing local session:", sessionError.message);
-          await supabase.auth.signOut();
-          setUser(null);
-          setProfile(null);
-          setWorkspaces([]);
-          setCurrentWorkspace(null);
-          setRoleState(null);
-          localStorage.removeItem("resolvia_role");
-          localStorage.removeItem("resolvia_workspace_id");
-          setIsLoading(false);
-          return;
-        }
-
-        if (!mounted) return;
-        
-        const currentUser = session?.user ?? null;
-        setUser(currentUser);
-
-        if (currentUser) {
-          // Fetch profile and workspaces in parallel with individual error handling
-          const [p, ws] = await Promise.all([
-            profileService.getProfile(currentUser.id).catch(err => {
-              console.warn("Profile fetch failed, might not exist yet:", err);
-              return null;
-            }),
-            workspaceService.getWorkspaces(currentUser.id).catch(err => {
-              console.error("Workspace fetch failed:", err);
-              return [];
-            })
-          ]);
-          
-          if (!mounted) return;
-          
-          if (p) {
-            setProfile(p);
-            setRoleState(p.role);
-          }
-          
-          setWorkspaces(ws || []);
-          
-          // Fetch pending invites for the user
-          if (p) {
-            const invites = await workspaceService.getPendingInvites(currentUser.email, p.username);
-            setPendingInvites(invites);
-          }
-          
-          const savedWsId = localStorage.getItem("resolvia_workspace_id");
-          const initialWs = ws?.find(w => w.id === savedWsId) || null;
-          
-          if (initialWs) {
-            setCurrentWorkspaceState(initialWs);
-          }
-
-          // Sync push subscription if permission is already granted
-          if (Notification.permission === 'granted') {
-            subscribeUserToPush();
-          }
-        }
-      } catch (error) {
-        console.error("Critical initialization error:", error);
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    };
-
     init();
 
     // Register service worker and request push permission
@@ -289,7 +295,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [init]);
 
   useEffect(() => {
     if (!currentWorkspace) return;
