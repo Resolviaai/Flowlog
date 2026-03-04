@@ -1,24 +1,35 @@
 import React from "react";
 import { cn } from "../../utils/helpers";
+import { ArrowRight } from "lucide-react";
+import { motion } from "motion/react";
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
   className?: string;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
   key?: React.Key;
+  isClickable?: boolean;
 }
 
-export function Card({ className, children, ...props }: CardProps) {
+export function Card({ className, children, isClickable, ...props }: CardProps) {
   return (
-    <div
+    <motion.div
+      whileTap={isClickable ? { scale: 0.98 } : {}}
+      whileHover={isClickable ? { scale: 1.01 } : {}}
       className={cn(
-        "bg-surface border border-border rounded-2xl overflow-hidden",
+        "bg-surface border border-border rounded-2xl overflow-hidden relative transition-all duration-300 group",
+        isClickable && "hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 cursor-pointer",
         className
       )}
       {...props}
     >
       {children}
-    </div>
+      {isClickable && (
+        <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-purple-400">
+          <ArrowRight size={18} />
+        </div>
+      )}
+    </motion.div>
   );
 }
 

@@ -92,7 +92,7 @@ export function BatchDetail() {
             </div>
             <div className="space-y-3">
               {batchVideos.length > 0 ? batchVideos.map(video => (
-                <Card key={video.id} className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => navigate(`/videos/${video.id}`)}>
+                <Card key={video.id} isClickable onClick={() => navigate(`/videos/${video.id}`)}>
                   <CardContent className="p-4 flex justify-between items-center">
                     <div className="flex-1 min-w-0 pr-4">
                       <h3 className="font-medium text-white truncate mb-1">{video.title}</h3>

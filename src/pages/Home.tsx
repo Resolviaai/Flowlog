@@ -106,8 +106,8 @@ export function Home() {
               return (
                 <Card 
                   key={batch.id} 
+                  isClickable
                   onClick={() => navigate(`/batches/${batch.id}`)}
-                  className="cursor-pointer hover:bg-white/5 transition-colors"
                 >
                   <CardContent className="p-4">
                     <div className="flex justify-between items-center mb-2">

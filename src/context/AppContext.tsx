@@ -186,10 +186,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error("Session error:", sessionError);
-          if (sessionError.message.includes("Refresh Token Not Found") || sessionError.message.includes("Invalid Refresh Token")) {
-            await supabase.auth.signOut();
-          }
+          console.warn("Session error detected, clearing local session:", sessionError.message);
+          await supabase.auth.signOut();
+          setUser(null);
+          setProfile(null);
+          setWorkspaces([]);
+          setCurrentWorkspace(null);
+          setRoleState(null);
+          localStorage.removeItem("resolvia_role");
+          localStorage.removeItem("resolvia_workspace_id");
+          setIsLoading(false);
+          return;
         }
 
         if (!mounted) return;
@@ -255,19 +262,25 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
       
-      console.log("Auth event:", event);
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        init();
-        if (Notification.permission === 'granted') {
-          subscribeUserToPush();
+      try {
+        console.log("Auth event:", event);
+        
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          if (!session) {
+             throw new Error("No session found on sign in/refresh");
+          }
+          setUser(session.user);
+          await init();
+          if (Notification.permission === 'granted') {
+            subscribeUserToPush();
+          }
+        } else if (event === 'SIGNED_OUT') {
+          await signOut();
+          setIsLoading(false);
         }
-      } else if (event === 'SIGNED_OUT') {
-        setProfile(null);
-        setWorkspaces([]);
-        setCurrentWorkspace(null);
+      } catch (error) {
+        console.warn("Auth change error, signing out:", error);
+        await signOut();
         setIsLoading(false);
       }
     });

@@ -81,7 +81,7 @@ export function Videos() {
             if (video.priority === "low") priorityColor = "bg-text-secondary";
 
             return (
-              <Card key={video.id} className="cursor-pointer hover:bg-white/5 transition-colors" onClick={() => navigate(`/videos/${video.id}`)}>
+              <Card key={video.id} isClickable onClick={() => navigate(`/videos/${video.id}`)}>
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex-1 min-w-0 pr-4">
                     <div className="flex items-center gap-2 mb-1">
@@ -98,7 +98,6 @@ export function Videos() {
                     </div>
                     <p className="text-xs text-text-secondary mt-2">Created {getRelativeTime(video.created_at)}</p>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-text-secondary flex-shrink-0" />
                 </CardContent>
               </Card>
             );
