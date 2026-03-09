@@ -88,7 +88,7 @@ export function BatchDetail() {
           <section>
             <div className="flex justify-between items-center mb-3">
               <h2 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">Assigned Videos ({batchVideos.length})</h2>
-              {role === "editor" && <Button variant="ghost" size="sm" className="h-8 text-accent">Add</Button>}
+              {role === "editor" && <Button variant="ghost" size="sm" className="h-8 text-accent" onClick={() => navigate(`/videos/add?batchId=${id}`)}>Add</Button>}
             </div>
             <div className="space-y-3">
               {batchVideos.length > 0 ? batchVideos.map(video => (

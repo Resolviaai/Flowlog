@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { TopBar } from "../components/layout/TopBar";
 import { Card, CardContent } from "../components/ui/Card";
@@ -11,12 +11,13 @@ import { toast } from "sonner";
 
 export function AddVideo() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { batches, refreshData, addVideoToState, currentWorkspace } = useAppContext();
   
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [driveLink, setDriveLink] = useState("");
-  const [batchId, setBatchId] = useState("");
+  const [batchId, setBatchId] = useState(searchParams.get("batchId") || "");
   const [priority, setPriority] = useState<"low" | "normal" | "high" | "urgent">("normal");
   const [platform, setPlatform] = useState<"YouTube" | "Instagram" | "TikTok" | "LinkedIn" | "Other">("YouTube");
   const [videoType, setVideoType] = useState<"short_form" | "long_form" | "reel" | "ad" | "podcast" | "other">("short_form");

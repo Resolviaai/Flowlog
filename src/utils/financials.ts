@@ -1,11 +1,11 @@
 import { PaymentBatch, Video, Revision } from "../types";
 
 export function getBatchBalance(batch: PaymentBatch, videos: Video[]) {
-  const completedVideosInBatch = videos.filter(
-    (v) => v.batch_id === batch.id && (v.status === "delivered" || v.status === "approved" || v.status === "archived")
+  const videosInBatch = videos.filter(
+    (v) => v.batch_id === batch.id
   );
   
-  const consumedAmount = completedVideosInBatch.reduce((total, v) => {
+  const consumedAmount = videosInBatch.reduce((total, v) => {
     const basePrice = v.custom_price !== null && v.custom_price !== undefined ? v.custom_price : batch.rate_at_time_of_batch;
     const bonus = v.bonus_amount || 0;
     return total + basePrice + bonus;
