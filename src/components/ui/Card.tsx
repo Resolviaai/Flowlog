@@ -17,7 +17,7 @@ export function Card({ className, children, isClickable, ...props }: CardProps) 
       whileTap={isClickable ? { scale: 0.98 } : {}}
       whileHover={isClickable ? { scale: 1.01 } : {}}
       className={cn(
-        "bg-surface border border-border rounded-2xl overflow-hidden relative transition-all duration-300 group",
+        "bg-surface border border-border rounded-3xl overflow-hidden relative transition-all duration-300 group",
         isClickable && "hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 cursor-pointer",
         className
       )}
@@ -25,8 +25,8 @@ export function Card({ className, children, isClickable, ...props }: CardProps) 
     >
       {children}
       {isClickable && (
-        <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-purple-400">
-          <ArrowRight size={18} />
+        <div className="absolute bottom-6 right-6 text-purple-400">
+          <ArrowRight size={24} />
         </div>
       )}
     </motion.div>
@@ -35,7 +35,7 @@ export function Card({ className, children, isClickable, ...props }: CardProps) 
 
 export function CardHeader({ className, children, ...props }: CardProps) {
   return (
-    <div className={cn("px-6 py-4 border-b border-border", className)} {...props}>
+    <div className={cn("px-8 py-6 border-b border-border", className)} {...props}>
       {children}
     </div>
   );
@@ -43,7 +43,7 @@ export function CardHeader({ className, children, ...props }: CardProps) {
 
 export function CardTitle({ className, children, ...props }: CardProps) {
   return (
-    <h3 className={cn("text-lg font-semibold text-white", className)} {...props}>
+    <h3 className={cn("text-xl font-semibold text-white", className)} {...props}>
       {children}
     </h3>
   );
@@ -51,7 +51,7 @@ export function CardTitle({ className, children, ...props }: CardProps) {
 
 export function CardContent({ className, children, ...props }: CardProps) {
   return (
-    <div className={cn("p-6", className)} {...props}>
+    <div className={cn("p-8", className)} {...props}>
       {children}
     </div>
   );

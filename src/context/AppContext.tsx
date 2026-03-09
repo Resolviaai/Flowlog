@@ -57,14 +57,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   }, [currentWorkspace]);
 
   const init = React.useCallback(async () => {
-    if (isInitializing.current) return;
+    if (isInitializing.current) {
+      console.log("init() called but already initializing, skipping.");
+      return;
+    }
     isInitializing.current = true;
+    console.log("init() started");
     
     // Only show global loading if we don't have a workspace yet
     if (!currentWorkspaceRef.current) setIsLoading(true);
     
     try {
+      console.log("Fetching session...");
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      console.log("Session fetched:", !!session, sessionError);
       
       if (sessionError) {
         console.warn("Session error detected, clearing local session:", sessionError.message);
@@ -84,6 +90,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       setUser(currentUser);
 
       if (currentUser) {
+        console.log("Fetching profile and workspaces...");
         // Fetch profile and workspaces in parallel with individual error handling
         const [p, ws] = await Promise.all([
           profileService.getProfile(currentUser.id).catch(err => {
@@ -95,6 +102,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             return [];
           })
         ]);
+        console.log("Profile and workspaces fetched:", !!p, ws?.length);
         
         if (p) {
           setProfile(p);
@@ -105,8 +113,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         
         // Fetch pending invites for the user
         if (p) {
+          console.log("Fetching pending invites...");
           const invites = await workspaceService.getPendingInvites(currentUser.email, p.username);
           setPendingInvites(invites);
+          console.log("Invites fetched:", invites.length);
         }
         
         const savedWsId = localStorage.getItem("resolvia_workspace_id");
@@ -124,6 +134,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error("Critical initialization error:", error);
     } finally {
+      console.log("init() finished");
       setIsLoading(false);
       isInitializing.current = false;
     }
@@ -243,15 +254,28 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
-    setWorkspaces([]);
-    setCurrentWorkspace(null);
-    setRoleState(null);
-    localStorage.removeItem("resolvia_role");
-    localStorage.removeItem("resolvia_workspace_id");
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+    try {
+      console.log("Signing out...");
+      await supabase.auth.signOut();
+      console.log("Signed out from Supabase");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    } finally {
+      setUser(null);
+      setProfile(null);
+      setWorkspaces([]);
+      setCurrentWorkspace(null);
+      setRoleState(null);
+      localStorage.removeItem("resolvia_role");
+      localStorage.removeItem("resolvia_workspace_id");
+      console.log("Local state cleared");
+      setIsSigningOut(false);
+    }
   };
 
   useEffect(() => {
@@ -271,11 +295,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       try {
         console.log("Auth event:", event);
         
+        // Only re-init on specific events that actually change the session
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           if (!session) {
-             throw new Error("No session found on sign in/refresh");
+             const { data: { session: s } } = await supabase.auth.getSession();
+             if (!s) {
+                setIsLoading(false);
+                return;
+             }
+             setUser(s.user);
+          } else {
+             setUser(session.user);
           }
-          setUser(session.user);
           await init();
           if (Notification.permission === 'granted') {
             subscribeUserToPush();
@@ -284,6 +315,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           await signOut();
           setIsLoading(false);
         }
+        // Ignore INITIAL_SESSION as it's handled by the initial init() call
       } catch (error) {
         console.warn("Auth change error, signing out:", error);
         await signOut();
@@ -319,6 +351,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           activityService.getActivityLog(currentWorkspace.id, 50).then(setActivityLog);
           
           const otherUserIds = [currentWorkspace.editor_id, currentWorkspace.client_id].filter(id => id && id !== user?.id) as string[];
+          console.log("Other user IDs for notification:", otherUserIds);
 
           if (payload.eventType === 'INSERT') {
             sendBrowserNotification("New Video Added", { body: (payload.new as any).title });

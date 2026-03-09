@@ -82,22 +82,20 @@ export function Videos() {
 
             return (
               <Card key={video.id} isClickable onClick={() => navigate(`/videos/${video.id}`)}>
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex-1 min-w-0 pr-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className={`w-2 h-2 rounded-full ${priorityColor}`} />
-                      <h3 className="font-medium text-white truncate">{video.title}</h3>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 mt-2">
-                      <Badge variant="default">{video.platform}</Badge>
-                      {batch && <Badge variant="info">{batch.label}</Badge>}
-                      {revCount > 0 && <Badge variant={revCount >= 3 ? "error" : "warning"}>{revCount} Revs</Badge>}
-                      <Badge variant={video.status === "approved" ? "success" : video.status === "delivered" ? "info" : video.status === "in_progress" ? "warning" : "default"}>
-                        {video.status.replace("_", " ").toUpperCase()}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-text-secondary mt-2">Created {getRelativeTime(video.created_at)}</p>
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`w-3 h-3 rounded-full ${priorityColor}`} />
+                    <h3 className="font-semibold text-xl text-white truncate">{video.title}</h3>
                   </div>
+                  <div className="flex flex-wrap items-center gap-3 mb-6">
+                    <Badge variant="default">{video.platform}</Badge>
+                    {batch && <Badge variant="info">{batch.label}</Badge>}
+                    {revCount > 0 && <Badge variant={revCount >= 3 ? "error" : "warning"}>{revCount} Revs</Badge>}
+                    <Badge variant={video.status === "approved" ? "success" : video.status === "delivered" ? "info" : video.status === "in_progress" ? "warning" : "default"}>
+                      {video.status.replace("_", " ").toUpperCase()}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-text-secondary">Created {getRelativeTime(video.created_at)}</p>
                 </CardContent>
               </Card>
             );

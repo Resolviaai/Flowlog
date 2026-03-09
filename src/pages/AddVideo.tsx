@@ -37,6 +37,13 @@ export function AddVideo() {
     
     setIsSubmitting(true);
     try {
+      console.log("Creating video with data:", {
+        title,
+        description,
+        drive_link: driveLink,
+        batch_id: batchId || null,
+        workspace_id: currentWorkspace.id
+      });
       const newVideo = await videoService.createVideo({
         title,
         description,
@@ -56,6 +63,7 @@ export function AddVideo() {
         bonus_reason: bonusReason || null,
         workspace_id: currentWorkspace.id
       });
+      console.log("Video created:", newVideo);
       addVideoToState(newVideo);
       hapticFeedback('success');
       toast.success("Video added successfully");

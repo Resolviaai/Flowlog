@@ -109,12 +109,15 @@ export function Home() {
                   isClickable
                   onClick={() => navigate(`/batches/${batch.id}`)}
                 >
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium">{batch.label}</span>
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="font-semibold text-lg text-white">{batch.label}</span>
                       <span className="text-sm text-text-secondary">{formatCurrency(balance, currentWorkspace.currency_symbol)} left</span>
                     </div>
-                    <div className="h-2 bg-surface rounded-full overflow-hidden">
+                    <div className="text-sm text-text-secondary mb-4">
+                      {videos.filter(v => v.batch_id === batch.id && v.status === 'approved').length} / {videos.filter(v => v.batch_id === batch.id).length} videos done
+                    </div>
+                    <div className="h-3 bg-surface rounded-full overflow-hidden">
                       <div className={`h-full ${colorClass} transition-all duration-500`} style={{ width: `${percent}%` }} />
                     </div>
                   </CardContent>
@@ -134,10 +137,10 @@ export function Home() {
               const batch = batches.find(b => b.id === video.batch_id);
               const revCount = revisions.filter(r => r.video_id === video.id).length;
               return (
-                <Card key={video.id} className="min-w-[240px] md:min-w-0 flex-shrink-0 md:flex-shrink">
-                  <CardContent className="p-4">
-                    <h3 className="font-medium truncate mb-2">{video.title}</h3>
-                    <div className="flex items-center gap-2 mb-3">
+                <Card key={video.id} isClickable onClick={() => navigate(`/videos/${video.id}`)} className="min-w-[300px] md:min-w-0 flex-shrink-0 md:flex-shrink">
+                  <CardContent className="p-8">
+                    <h3 className="font-semibold text-lg text-white truncate mb-3">{video.title}</h3>
+                    <div className="flex items-center gap-3 mb-4">
                       <Badge variant="info">{batch?.label || "No Batch"}</Badge>
                       {revCount > 0 && <Badge variant={revCount >= 3 ? "error" : "warning"}>{revCount} Revs</Badge>}
                     </div>
@@ -194,9 +197,9 @@ export function Home() {
 function KpiCard({ title, value, icon }: { title: string; value: string | number; icon?: React.ReactNode }) {
   return (
     <Card className="bg-surface border-border">
-      <CardContent className="p-4 flex flex-col justify-between h-24">
-        <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{title}</span>
-        <div className="text-2xl font-bold text-white tracking-tight">{value}</div>
+      <CardContent className="p-6 flex flex-col justify-between h-32">
+        <span className="text-xs font-bold text-text-secondary uppercase tracking-widest">{title}</span>
+        <div className="text-3xl font-bold text-white tracking-tight">{value}</div>
       </CardContent>
     </Card>
   );
